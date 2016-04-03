@@ -1,12 +1,15 @@
 var db = require('./db');
 
 module.exports = function(req, httpRes, callback) {
-  var token = req.headers['X-Access-Token'];
+  var token = req.headers['x-access-token'];
 
-  db.query("SELECT * FROM Users WHERE login_token = ?", [token], function(err, res) {
+  console.log(token);
+  db.query("SELECT * FROM User WHERE login_token = ?", [token], function(err, res) {
     if (err || res.length < 1) {
+      console.log(err);
       httpRes.send({ success: false, reason: "Unauthorized" });
     } else {
+      console.log("Auth successful");
       callback(res[0]);
     }
   });

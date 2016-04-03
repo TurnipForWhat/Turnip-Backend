@@ -6,6 +6,7 @@ var db = require('./db');
 app.use(bodyParser.json());
 
 require("./api/user")(app);
+require("./api/turnip")(app);
 
 app.get('/', function(req, res) {
   res.send('Turnip');
