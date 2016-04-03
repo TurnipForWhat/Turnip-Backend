@@ -1,5 +1,11 @@
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
+var db = require('./db');
+
+app.use(bodyParser.json());
+
+require("./api/user")(app);
 
 app.get('/', function(req, res) {
   res.send('Turnip');
