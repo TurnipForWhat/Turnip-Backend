@@ -28,4 +28,11 @@ module.exports = function(app) {
       });
     });
   });
+
+  app.get('/user/:user_id', function(req, httpRes) {
+    db.query("SELECT * FROM User WHERE id = ?", [req.params.user_id], function(err, res) {
+      delete res.hashed_password;
+      httpRes.send(res);
+    });
+  });
 };

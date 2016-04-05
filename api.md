@@ -90,16 +90,22 @@ POST /chat
 
 # Friends
 
+```
 POST /friend/request/:user_id
 >> { success: Boolean }
+```
 
+```
 DELETE /friend/request/:user_id
 >> { success: Boolean }
+```
 
 # Main feed
 
+```
 GET /feed
 >> { friends: [User], status: boolean }
+```
 
 # Profile management
 
