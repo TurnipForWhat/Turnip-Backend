@@ -1,5 +1,6 @@
 var db = require('../db');
 var bcrypt = require('bcrypt');
+var requireAuthentication = require('../authentication.js');
 
 module.exports = function(app) {
   app.post('/signup', function(req, httpRes) {
@@ -33,6 +34,24 @@ module.exports = function(app) {
     db.query("SELECT * FROM User WHERE id = ?", [req.params.user_id], function(err, res) {
       delete res.hashed_password;
       httpRes.send(res);
+    });
+  });
+
+  app.post('/friend/request/:user_id', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("INSERT INTO FriendRequests SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
+        console.log(err);
+        httpRes.send({ success: true });
+      });
+    });
+  });
+
+  app.delete('/friend/request/:user_id', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("DELETE FROM FriendRequests WHERE `to` = ? AND `from` = ?", [req.params.user_id, user.id], function(err, res) {
+        console.log(err);
+        httpRes.send({ success: true });
+      });
     });
   });
 };
