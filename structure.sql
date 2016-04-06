@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 10.1.8-MariaDB)
 # Database: turnip
-# Generation Time: 2016-04-05 23:49:12 +0000
+# Generation Time: 2016-04-06 02:25:55 +0000
 # ************************************************************
 
 
@@ -57,6 +57,27 @@ CREATE TABLE `Event` (
 
 
 
+# Dump of table FriendRequests
+# ------------------------------------------------------------
+
+CREATE TABLE `FriendRequests` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `to` int(11) DEFAULT NULL,
+  `from` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `FriendRequests` WRITE;
+/*!40000 ALTER TABLE `FriendRequests` DISABLE KEYS */;
+
+INSERT INTO `FriendRequests` (`id`, `to`, `from`)
+VALUES
+	(1,NULL,1);
+
+/*!40000 ALTER TABLE `FriendRequests` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
 # Dump of table GroupChat
 # ------------------------------------------------------------
 
@@ -66,6 +87,17 @@ CREATE TABLE `GroupChat` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `GroupChat` WRITE;
+/*!40000 ALTER TABLE `GroupChat` DISABLE KEYS */;
+
+INSERT INTO `GroupChat` (`id`, `people`)
+VALUES
+	(1,'1'),
+	(2,'1'),
+	(3,'1');
+
+/*!40000 ALTER TABLE `GroupChat` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table User
@@ -96,6 +128,30 @@ VALUES
 	(1,'Jonathan',1,1459719392,'$2a$11$jrhAXhXcf1lQvbBQ6J/zb.gacnmUt2G9kwhLnEYpcN0e4selWuGcK',NULL,NULL,'1,5,10','butts@butts.butts',NULL,'0.d9sabxucm3i60f6r','1,2,3','4,5,6');
 
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table UserToGroupChat
+# ------------------------------------------------------------
+
+CREATE TABLE `UserToGroupChat` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user` int(11) DEFAULT NULL,
+  `chat_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `UserToGroupChat` WRITE;
+/*!40000 ALTER TABLE `UserToGroupChat` DISABLE KEYS */;
+
+INSERT INTO `UserToGroupChat` (`id`, `user`, `chat_id`)
+VALUES
+	(1,1,1),
+	(2,1,3),
+	(3,2,3),
+	(4,3,3);
+
+/*!40000 ALTER TABLE `UserToGroupChat` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
