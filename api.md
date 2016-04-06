@@ -88,18 +88,31 @@ POST /chat
 >> { success: Boolean }
 ```
 
+## Get a list of chats the user is in
+
+```
+GET /chats
+>> [ chat_id ]
+```
+
 # Friends
 
+```
 POST /friend/request/:user_id
 >> { success: Boolean }
+```
 
+```
 DELETE /friend/request/:user_id
 >> { success: Boolean }
+```
 
 # Main feed
 
+```
 GET /feed
 >> { friends: [User], status: boolean }
+```
 
 # Profile management
 

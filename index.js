@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 
 require("./api/user")(app);
 require("./api/turnip")(app);
+require("./api/chat")(app);
 
 app.get('/', function(req, res) {
   res.send('Turnip');
