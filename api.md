@@ -88,6 +88,13 @@ POST /chat
 >> { success: Boolean }
 ```
 
+## Get a list of chats the user is in
+
+```
+GET /chats
+>> [ chat_id ]
+```
+
 # Friends
 
 ```
