@@ -19,7 +19,7 @@ module.exports = function(app) {
 
   app.post('/login', function(req, httpRes) {
     db.query("SELECT * FROM User WHERE email = ?", [req.body.email], function(err, res) {
-      bcrypt.compare(res[0].hashed_password, req.body.password, function(err, match) {
+      bcrypt.compare(req.body.password, res[0].hashed_password, function(err, match) {
         if (err || !match) {
           httpRes.send({ success: false, reason: "invalid password" });
         } else {
