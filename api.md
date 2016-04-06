@@ -18,7 +18,7 @@ POST /signup
 ```
 POST /login
 {
-	name: String,
+	email: String,
 	password: String,
 }
 >> { success: Boolean, login_token: String }
