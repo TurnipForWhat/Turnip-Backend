@@ -20,6 +20,10 @@ module.exports = function(app) {
 
   app.post('/login', function(req, httpRes) {
     db.query("SELECT * FROM User WHERE email = ?", [req.body.email], function(err, res) {
+      if (err || res.length < 1) {
+          httpRes.send({ success: false, reason: "invalid password" });
+          return;
+      }
       bcrypt.compare(req.body.password, res[0].hashed_password, function(err, match) {
         if (err || !match) {
           httpRes.send({ success: false, reason: "invalid password" });
@@ -54,4 +58,21 @@ module.exports = function(app) {
       });
     });
   });
+
+  app.post('/user/invite', function(req, httpRes) {
+    httpRes.send({ success: true });
+    // TODO
+  });
+
+  /*
+   * Not critical for the demo, probably
+  app.post('/user/:user_id/block', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("UPDATE User SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
+        console.log(err);
+        httpRes.send({ success: true });
+      });
+    });
+  });
+  */
 };
