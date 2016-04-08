@@ -17,9 +17,10 @@ module.exports = function(app) {
   });
 
   app.post('/interests', function(req, httpRes) {
+    console.log(req.body);
     requireAuthentication(req, httpRes, function(user) {
-      var interests = req.body.activities.join(",");
-      var anti_interests = req.body.anti_activities.join(",");
+      var interests = req.body.interests.join(",");
+      var anti_interests = req.body.anti_interests.join(",");
       db.query("UPDATE User SET ? WHERE id = ?", [{
         interests: interests,
         anti_interests: anti_interests,
@@ -39,8 +40,8 @@ module.exports = function(app) {
          var friends_array = res.map(function(user) {
            return {
              status: calculateStatusFromUser(user),
-             name: user.name,
-             profile_picture_id: user.profile_picture_id,
+             name: user.name || '',
+             profile_picture_id: user.profile_picture_id || '',
            };
          });
          httpRes.send({ friends: friends_array, status: status });
