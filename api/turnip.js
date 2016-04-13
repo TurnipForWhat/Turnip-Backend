@@ -42,6 +42,7 @@ module.exports = function(app) {
          if (err) friends_array = [];
          else friends_array = res.map(function(user) {
            return {
+             myid: user.id,
              status: calculateStatusFromUser(user),
              name: user.name || '',
              profile_picture_id: user.profile_picture_id || '',
