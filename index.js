@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var db = require('./db');
 
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
 require("./api/user")(app);
 require("./api/turnip")(app);
