@@ -42,13 +42,13 @@ module.exports = function(app) {
          if (err) friends_array = [];
          else friends_array = res.map(function(user) {
            return {
-             myid: user.id,
+             id: user.id,
              status: calculateStatusFromUser(user),
              name: user.name || '',
              profile_picture_id: user.profile_picture_id || '',
            };
          });
-         httpRes.send({ friends: friends_array, status: status });
+         httpRes.send({ friends: friends_array, status: status, myid: user.id });
        });
     });
   });
