@@ -35,7 +35,7 @@ module.exports = function(app) {
     requireAuthentication(req, httpRes, function(user) {
       var status = calculateStatusFromUser(user);
       var friends = user.friends_list ? user.friends_list.split(",") : [];
-      db.query("SELECT * FROM User WHERE id IN (?)", friends.join(","), function(err, res) {
+      db.query("SELECT * FROM User WHERE id IN (" + friends.map(function(id) { return ~~id; }).join(",") + ")", function(err, res) {
          console.log(err);
          var friends_array = res.map(function(user) {
            return {
