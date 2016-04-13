@@ -35,9 +35,12 @@ module.exports = function(app) {
     requireAuthentication(req, httpRes, function(user) {
       var status = calculateStatusFromUser(user);
       var friends = user.friends_list ? user.friends_list.split(",") : [];
+      console.log(friends);
       db.query("SELECT * FROM User WHERE id IN (" + friends.map(function(id) { return ~~id; }).join(",") + ")", function(err, res) {
          console.log(err);
-         var friends_array = res.map(function(user) {
+         var friends_array = [];
+         if (err) friends_array = [];
+         else friends_array = res.map(function(user) {
            return {
              status: calculateStatusFromUser(user),
              name: user.name || '',
@@ -53,4 +56,3 @@ module.exports = function(app) {
     return !!(user.status && (((new Date).getTime() / 1000) - user.last_toggle_time) < SIX_HOURS);
   }
 };
-
