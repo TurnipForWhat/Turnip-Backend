@@ -12,7 +12,7 @@ function setup() {
 }
 setup();
 
-module.exports.escape = connection.escape;
+module.exports.escape = function() { connection.escape.apply(connection, Array.prototype.slice.call(arguments)) };
 module.exports.query = function() {
   var parameters = Array.prototype.slice.call(arguments);
   var retry_count = 0;
