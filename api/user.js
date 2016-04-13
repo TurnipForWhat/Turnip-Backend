@@ -59,6 +59,17 @@ module.exports = function(app) {
     });
   });
 
+  app.put('/profile', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      console.log(req.body);
+      db.query("UPDATE User SET ? WHERE id = ?", [{name: req.body.name}, user.id], function(err, res) {
+        console.log(err);
+        console.log(res);
+        httpRes.send({ success: true });
+      });
+    });
+  });
+
   app.post('/user/invite', function(req, httpRes) {
     httpRes.send({ success: true });
     // TODO
