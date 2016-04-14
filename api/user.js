@@ -34,6 +34,18 @@ module.exports = function(app) {
     });
   });
 
+  app.post('/login/facebook', function(req, httpRes) {
+    db.query("SELECT * FROM User WHERE facebook_id = ?", [req.body.facebook_id], function(err, res) {
+      console.log(req.body);
+      if (res && res.length > 0) {
+        httpRes.send({ success: true, login_token: res[0].login_token });
+      } else {
+        httpRes.send({ success: false });
+      }
+    });
+  });
+
+
   app.get('/user/:user_id', function(req, httpRes) {
     db.query("SELECT * FROM User WHERE id = ?", [req.params.user_id], function(err, res) {
       delete res.hashed_password;
@@ -45,6 +57,9 @@ module.exports = function(app) {
     console.log(req.query);
     db.query("SELECT name, id, profile_picture_id FROM User WHERE name LIKE ?", ["%" + req.query.q + "%"], function(err, res) {
       console.log(err);
+      res.map(function(user) {
+        user.profile_picture_id = user.profile_picture_id || '';
+      });
       httpRes.send({ results: res });
     });
   });
