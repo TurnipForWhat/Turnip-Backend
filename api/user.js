@@ -55,12 +55,30 @@ module.exports = function(app) {
 
   app.get('/search', function(req, httpRes) {
     console.log(req.query);
-    db.query("SELECT name, id, profile_picture_id FROM User WHERE name LIKE ?", ["%" + req.query.q + "%"], function(err, res) {
-      console.log(err);
-      res.map(function(user) {
-        user.profile_picture_id = user.profile_picture_id || '';
+    requireAuthentication(req, httpRes, function(loggedInUser) {
+      db.query("SELECT name, id, profile_picture_id FROM User WHERE name LIKE ?", ["%" + req.query.q + "%"], function(err, res) {
+        console.log(err);
+        res.map(function(user) {
+          user.profile_picture_id = user.profile_picture_id || '';
+          user.isFriend = loggedInUser.friends_list.split(",").indexOf(user.id.toString()) != -1;
+        });
+        httpRes.send({ results: res });
       });
-      httpRes.send({ results: res });
+    });
+  });
+
+  app.get('/friend/request', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("SELECT `from` FROM FriendRequests WHERE `to` = ?", [user.id], function(err, res) {
+        if (!res || res.length < 1) {
+          httpRes.send({ success: true, results: [] });
+          return;
+        }
+        db.query("SELECT name, id, profile_picture_id FROM User WHERE id IN (" + res.map(function(request) { return ~~request.from; }).join(",") + ")", function(err, res) {
+          console.log(err);
+          httpRes.send({ success: true, results: res });
+        });
+      });
     });
   });
 
@@ -88,6 +106,15 @@ module.exports = function(app) {
       db.query("UPDATE User SET ? WHERE id = ?", [{name: req.body.name}, user.id], function(err, res) {
         console.log(err);
         console.log(res);
+        httpRes.send({ success: true });
+      });
+    });
+  });
+
+  app.post('/gms', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("UPDATE User SET ? WHERE id = ?", [{ gms_token: req.body.token }, user.id], function(err, res) {
+        console.log(err);
         httpRes.send({ success: true });
       });
     });
