@@ -17,6 +17,9 @@ app.get('/', function(req, res) {
 app.get('/api/ping', function(req, res) {
   res.send('200');
 });
+app.get('/chat/:token/:chat_id', function(req, res) {
+  res.sendFile(__dirname + "/public/chat.html");
+});
 
 app.listen(3000, function() {
   console.log('Turnip now running at http://localhost:3000/');

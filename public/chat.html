@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+	<head>
+		<base href="/" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular.min.js"></script>
+		<script src="chat.js"></script>
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic,500italic' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body ng-app="chatApp">
+		<div ng-controller="MessageCtrl as vm">
+			<div ng-repeat="message in vm.chatMessages">
+				<div class="user">
+					<div class="image"><img ng-attr-src="{{vm.getPictureUrl(message.user.profile_picture_id)}}"></div>
+					<div class="name">{{ message.user.name }}:</div>
+				</div>
+				{{ message.text }}
+			</div>
+
+			<div class="input-container">
+				<textarea ng-model="vm.message" ng-keyup="vm.handleKeyup($event)"></textarea>
+			</div>
+		</div>
+	</body>
+</html>
