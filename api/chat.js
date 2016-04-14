@@ -4,8 +4,9 @@ var requireAuthentication = require('../authentication.js');
 module.exports = function(app) {
   app.post('/chat/:chat_id', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
+      var chatID = [user.id, req.params.chat_id].sort().join(",");
       db.query("INSERT INTO Chat SET ?", [{
-        chat_id: req.params.chat_id,
+        chat_id: chatID,
         body: req.body.message,
         sender: user.id,
       }], function(err, res) {
@@ -19,9 +20,22 @@ module.exports = function(app) {
       if (!req.query.last) {
         req.query.last = 0;
       }
-      db.query("SELECT * FROM Chat WHERE chat_id = ? AND id > ?", [req.params.chat_id, req.query.last], function(err, res) {
+      var chatID = [user.id, req.params.chat_id].sort().join(",");
+      db.query("SELECT * FROM Chat WHERE chat_id = ? AND id > ?", [chatID, req.query.last], function(err, res) {
         if (err) console.log(err);
-        httpRes.send({ new_messages: res.length > 0, messages: res });
+        db.query("SELECT name, profile_picture_id FROM User WHERE id = ?", [req.params.chat_id], function(err, userRes) {
+          res.forEach(function(message) {
+            if (message.sender == user.id) {
+              message.user = {
+                name: user.name,
+                profile_picture_id: user.profile_picture_id,
+              };
+            } else {
+              message.user = userRes[0];
+            }
+          });
+          httpRes.send({ new_messages: res.length > 0, messages: res });
+        });
       });
     });
   });
