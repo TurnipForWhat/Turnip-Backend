@@ -48,7 +48,7 @@ module.exports = function(app) {
              profile_picture_id: user.profile_picture_id || '',
            };
          });
-         httpRes.send({ friends: friends_array, status: status, myid: user.id });
+         httpRes.send({ friends: friends_array, status: status, myid: user.id, profile_picture_id: user.profile_picture_id });
        });
     });
   });
