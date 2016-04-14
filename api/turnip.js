@@ -1,5 +1,6 @@
 var db = require('../db');
 var requireAuthentication = require('../authentication.js');
+var gcm = require('../gcm');
 
 var SIX_HOURS = 60 * 60 * 6;
 
