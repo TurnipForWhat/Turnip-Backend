@@ -12,6 +12,7 @@ module.exports = function(app) {
          hashed_password: res,
          facebook_id: req.body.fbid,
          login_token: token,
+         profile_picture_id: "none",
        }, function(err, res) {
          httpRes.send({ success: true, login_token: token });
        });
@@ -62,6 +63,7 @@ module.exports = function(app) {
           user.profile_picture_id = user.profile_picture_id || '';
           user.isFriend = loggedInUser.friends_list.split(",").indexOf(user.id.toString()) != -1;
         });
+        console.log(res);
         httpRes.send({ results: res });
       });
     });
@@ -76,6 +78,9 @@ module.exports = function(app) {
         }
         db.query("SELECT name, id, profile_picture_id FROM User WHERE id IN (" + res.map(function(request) { return ~~request.from; }).join(",") + ")", function(err, res) {
           console.log(err);
+          res.map(function(result) {
+            result.profile_picture_id = result.profile_picture_id || '';
+          });
           httpRes.send({ success: true, results: res });
         });
       });
@@ -87,6 +92,28 @@ module.exports = function(app) {
       db.query("INSERT INTO FriendRequests SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
         console.log(err);
         httpRes.send({ success: true });
+      });
+    });
+  });
+
+  app.post('/friend/request/:user_id/accept', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      var friends = user.friends_list.split(",");
+      friends.push(~~req.params.user_id);
+      var newUserFriends = friends.join(",");
+      db.query("UPDATE User SET ? WHERE id = ?", [{ friends_list: newUserFriends }, user.id], function(err, res) {
+        db.query("SELECT * FROM User WHERE id = ?", [~~req.params.user_id], function(err, res) {
+          if (!res || res.length < 1) return;
+          friends = res[0].friends_list.split(",");
+          friends.push(user.id);
+          newUserFriends = friends.join(",");
+          db.query("UPDATE User SET ? WHERE id = ?", [{ friends_list: newUserFriends }, res[0].id], function(err, res) {
+            db.query("DELETE FROM FriendRequests WHERE `to` = ? AND `from` = ?", [user.id, req.params.user_id], function(err, res) {
+              console.log(err);
+              httpRes.send({ success: true });
+            });
+          });
+        });
       });
     });
   });
