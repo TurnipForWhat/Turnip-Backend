@@ -113,6 +113,7 @@ module.exports = function(app) {
 
   app.post('/gms', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
+      console.log("Saving GMS", req.body);
       db.query("UPDATE User SET ? WHERE id = ?", [{ gms_token: req.body.token }, user.id], function(err, res) {
         console.log(err);
         httpRes.send({ success: true });

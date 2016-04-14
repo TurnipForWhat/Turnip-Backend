@@ -18,7 +18,7 @@ module.exports = function(app) {
 
            var friends = user.friends_list.split(",");
            friends.forEach(function(friend) {
-             gcm.sendMessageToUser(friend.id, { "message": user.name + " wants to turn up!" });
+             gcm.sendMessageToUser(friend, { "message": user.name + " wants to turn up!" });
            });
          }
        });
