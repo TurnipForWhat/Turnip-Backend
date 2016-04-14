@@ -41,6 +41,14 @@ module.exports = function(app) {
     });
   });
 
+  app.get('/search', function(req, httpRes) {
+    console.log(req.query);
+    db.query("SELECT name, id, profile_picture_id FROM User WHERE name LIKE ?", ["%" + req.query.q + "%"], function(err, res) {
+      console.log(err);
+      httpRes.send({ results: res });
+    });
+  });
+
   app.post('/friend/request/:user_id', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
       db.query("INSERT INTO FriendRequests SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
