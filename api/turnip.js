@@ -1,5 +1,6 @@
 var db = require('../db');
 var requireAuthentication = require('../authentication.js');
+var gcm = require('../gcm');
 
 var SIX_HOURS = 60 * 60 * 6;
 
@@ -12,6 +13,14 @@ module.exports = function(app) {
       }, user.id], function(err, res) {
          console.log(err);
          httpRes.send({ success: true });
+         if (req.body.status) {
+           // Push out turnip notifications
+
+           var friends = user.friends_list.split(",");
+           friends.forEach(function(friend) {
+             gcm.sendMessageToUser(friend, { "message": user.name + " wants to turn up!" });
+           });
+         }
        });
     });
   });

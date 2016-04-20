@@ -12,6 +12,7 @@ module.exports = function(app) {
          hashed_password: res,
          facebook_id: req.body.fbid,
          login_token: token,
+         profile_picture_id: "none",
        }, function(err, res) {
          httpRes.send({ success: true, login_token: token });
        });
@@ -34,10 +35,55 @@ module.exports = function(app) {
     });
   });
 
+  app.post('/login/facebook', function(req, httpRes) {
+    db.query("SELECT * FROM User WHERE facebook_id = ?", [req.body.facebook_id], function(err, res) {
+      console.log(req.body);
+      if (res && res.length > 0) {
+        httpRes.send({ success: true, login_token: res[0].login_token });
+      } else {
+        httpRes.send({ success: false });
+      }
+    });
+  });
+
+
   app.get('/user/:user_id', function(req, httpRes) {
     db.query("SELECT * FROM User WHERE id = ?", [req.params.user_id], function(err, res) {
       delete res.hashed_password;
       httpRes.send(res);
+    });
+  });
+
+  app.get('/search', function(req, httpRes) {
+    console.log(req.query);
+    requireAuthentication(req, httpRes, function(loggedInUser) {
+      db.query("SELECT name, id, profile_picture_id FROM User WHERE name LIKE ?", ["%" + req.query.q + "%"], function(err, res) {
+        console.log(err);
+        res.map(function(user) {
+          user.profile_picture_id = user.profile_picture_id || '';
+          user.isFriend = loggedInUser.friends_list.split(",").indexOf(user.id.toString()) != -1;
+        });
+        console.log(res);
+        httpRes.send({ results: res });
+      });
+    });
+  });
+
+  app.get('/friend/request', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("SELECT `from` FROM FriendRequests WHERE `to` = ?", [user.id], function(err, res) {
+        if (!res || res.length < 1) {
+          httpRes.send({ success: true, results: [] });
+          return;
+        }
+        db.query("SELECT name, id, profile_picture_id FROM User WHERE id IN (" + res.map(function(request) { return ~~request.from; }).join(",") + ")", function(err, res) {
+          console.log(err);
+          res.map(function(result) {
+            result.profile_picture_id = result.profile_picture_id || '';
+          });
+          httpRes.send({ success: true, results: res });
+        });
+      });
     });
   });
 
@@ -46,6 +92,28 @@ module.exports = function(app) {
       db.query("INSERT INTO FriendRequests SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
         console.log(err);
         httpRes.send({ success: true });
+      });
+    });
+  });
+
+  app.post('/friend/request/:user_id/accept', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      var friends = user.friends_list.split(",");
+      friends.push(~~req.params.user_id);
+      var newUserFriends = friends.join(",");
+      db.query("UPDATE User SET ? WHERE id = ?", [{ friends_list: newUserFriends }, user.id], function(err, res) {
+        db.query("SELECT * FROM User WHERE id = ?", [~~req.params.user_id], function(err, res) {
+          if (!res || res.length < 1) return;
+          friends = res[0].friends_list.split(",");
+          friends.push(user.id);
+          newUserFriends = friends.join(",");
+          db.query("UPDATE User SET ? WHERE id = ?", [{ friends_list: newUserFriends }, res[0].id], function(err, res) {
+            db.query("DELETE FROM FriendRequests WHERE `to` = ? AND `from` = ?", [user.id, req.params.user_id], function(err, res) {
+              console.log(err);
+              httpRes.send({ success: true });
+            });
+          });
+        });
       });
     });
   });
@@ -65,6 +133,16 @@ module.exports = function(app) {
       db.query("UPDATE User SET ? WHERE id = ?", [{name: req.body.name}, user.id], function(err, res) {
         console.log(err);
         console.log(res);
+        httpRes.send({ success: true });
+      });
+    });
+  });
+
+  app.post('/gms', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      console.log("Saving GMS", req.body);
+      db.query("UPDATE User SET ? WHERE id = ?", [{ gms_token: req.body.token }, user.id], function(err, res) {
+        console.log(err);
         httpRes.send({ success: true });
       });
     });
