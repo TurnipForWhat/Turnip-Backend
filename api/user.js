@@ -5,17 +5,23 @@ var requireAuthentication = require('../authentication.js');
 module.exports = function(app) {
   app.post('/signup', function(req, httpRes) {
     var token = Math.random().toString(36);
-    bcrypt.hash(req.body.password, 11, function(err, res) {
-      db.query("INSERT INTO User SET ?",
-       { name: req.body.name,
-         email: req.body.email,
-         hashed_password: res,
-         facebook_id: req.body.fbid,
-         login_token: token,
-         profile_picture_id: "none",
-       }, function(err, res) {
-         httpRes.send({ success: true, login_token: token });
-       });
+    db.query("SELECT * FROM User WHERE email = ?", req.body.email, function(err, res) {
+      if (res && res.length > 0) {
+        httpRes.send({ success: false, error: "This email is in use." });
+        return;
+      }
+      bcrypt.hash(req.body.password, 11, function(err, res) {
+        db.query("INSERT INTO User SET ?",
+         { name: req.body.name,
+           email: req.body.email,
+           hashed_password: res,
+           facebook_id: req.body.fbid,
+           login_token: token,
+           profile_picture_id: "none",
+         }, function(err, res) {
+           httpRes.send({ success: true, login_token: token });
+         });
+      });
     });
   });
 
@@ -148,20 +154,32 @@ module.exports = function(app) {
     });
   });
 
-  app.post('/user/invite', function(req, httpRes) {
-    httpRes.send({ success: true });
-    // TODO
-  });
-
-  /*
-   * Not critical for the demo, probably
   app.post('/user/:user_id/block', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
-      db.query("UPDATE User SET ?", { to: req.params.user_id, from: user.id }, function(err, res) {
+      var blocked_users = user.blocked_users ? user.blocked_users.split(",") : [];
+      blocked_users.push(req.params.user_id);
+      blocked_users = blocked_users.join(",");
+      db.query("UPDATE User SET ? WHERE id = ?", [{ blocked_users: users }, user.id], function(err, res) {
         console.log(err);
         httpRes.send({ success: true });
       });
     });
   });
-  */
+
+  app.post('/user/:user_id/unblock', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      var blocked_users = user.blocked_users ? user.blocked_users.split(",") : [];
+      blocked_users = blocked_users.filter(function(uid) {
+        if (~~uid == ~~req.params.user_id) {
+          return false;
+        }
+        return true;
+      });
+      blocked_users = blocked_users.join(",");
+      db.query("UPDATE User SET ? WHERE id = ?", [{ blocked_users: users }, user.id], function(err, res) {
+        console.log(err);
+        httpRes.send({ success: true });
+      });
+    });
+  });
 };
