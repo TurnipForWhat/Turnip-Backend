@@ -133,7 +133,9 @@ module.exports = function(app) {
     });
   });
 
-  app.put('/profile', function(req, httpRes) {
+  app.put('/profile', updateProfile);
+  app.post('/profile', updateProfile);
+  function updateProfile(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
       console.log(req.body);
       var newSettings = {name: req.body.name, email: req.body.email};
@@ -153,6 +155,15 @@ module.exports = function(app) {
           httpRes.send({ success: true });
         });
       }
+    });
+  };
+  app.get('/profile', function(req, httpRes) {
+    requireAuthentication(req, httpRes, function(user) {
+      db.query("SELECT * FROM User WHERE id = ?", [user.id], function(err, res) {
+        if (!res) return;
+        delete res[0].hashed_password;
+        httpRes.send(res[0]);
+      });
     });
   });
 

@@ -16,6 +16,7 @@ module.exports = function(app) {
          if (req.body.status) {
            // Push out turnip notifications
 
+           if (!user.friends_list) user.friends_list = '';
            var friends = user.friends_list.split(",");
            friends.forEach(function(friend) {
              gcm.sendMessageToUser(friend, { "message": user.name + " wants to turn up!" });
