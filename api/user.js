@@ -136,11 +136,23 @@ module.exports = function(app) {
   app.put('/profile', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
       console.log(req.body);
-      db.query("UPDATE User SET ? WHERE id = ?", [{name: req.body.name}, user.id], function(err, res) {
-        console.log(err);
-        console.log(res);
-        httpRes.send({ success: true });
-      });
+      var newSettings = {name: req.body.name, email: req.body.email};
+      if (req.body.password) {
+        bcrypt.hash(req.body.password, 11, function(err, res) {
+          newSettings.hashed_password = res;
+          commit();
+        });
+      } else {
+        commit();
+      }
+
+      function commit() {
+        db.query("UPDATE User SET ? WHERE id = ?", [newSettings, user.id], function(err, res) {
+          console.log(err);
+          console.log(res);
+          httpRes.send({ success: true });
+        });
+      }
     });
   });
 
