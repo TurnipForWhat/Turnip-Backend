@@ -10,7 +10,7 @@ describe("Backend Server", function() {
   });
   it("can talk to the database", function(done) {
     request(config.API_URL + '/api/health', function(error, response, body) {
-      assert.equal(body, "200");
+      assert.equal(body, "OK");
       done();
     });
   });

@@ -4,9 +4,11 @@ For what?
 
 ## Testing
 
-To run the tests:
+To run the automated tests:
 
 ```
-npm install -g jasmine
-jasmine
+npm install -g mocha
+# Start the server in another tab, if not already running
+mocha
 ```
+

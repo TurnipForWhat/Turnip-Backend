@@ -5,6 +5,15 @@ var gcm = require('../gcm');
 var SIX_HOURS = 60 * 60 * 6;
 
 module.exports = function(app) {
+  app.get('/api/health', function(req, httpRes) {
+      db.query("SELECT * FROM User", function(err, res) {
+        if (err || !res) {
+          httpRes.send({ success: false });
+        } else {
+          httpRes.send('OK');
+        }
+      });
+  });
   app.post('/toggle', function(req, httpRes) {
     requireAuthentication(req, httpRes, function(user) {
       db.query("UPDATE User SET ? WHERE id = ?", [{
